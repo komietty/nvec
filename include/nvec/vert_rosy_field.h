@@ -92,7 +92,7 @@ public:
 
     VecXi computeSingularNum();
 
-    static MatXd convert_to_extrinsic_field(const Mesh& m, const VecXc& f, const int nSym) {
+    static MatXd convert_to_extrinsic_field(const Hmsh& m, const VecXc& f, const int nSym) {
         MatXd ext(m.nV, 3 * nSym);
         for (Vert v: m.verts) {
             complex c = std::pow(f[v.id], 0.25);

@@ -44,11 +44,7 @@ else()
     message(FATAL_ERROR "Unrecognized compiler [${CMAKE_CXX_COMPILER_ID}]" )
 endif()
 
-
-list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-include(libigl)
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../polyscope/ "polyscope")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. "nvec")
 add_executable(${PROJECT_NAME} demo_face_rosy.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC polyscope igl::core nvec)
+target_link_libraries(${PROJECT_NAME} PUBLIC polyscope nvec)

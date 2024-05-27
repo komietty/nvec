@@ -1,5 +1,5 @@
-#include "face_seaming.h"
-#include "face_combing.h"
+#include "nvec/face_combing.h"
+#include "nvec/face_seaming.h"
 #include <igl/readOBJ.h>
 #include <polyscope/polyscope.h>
 #include <polyscope/curve_network.h>
