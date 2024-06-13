@@ -44,10 +44,7 @@ else()
     message(FATAL_ERROR "Unrecognized compiler [${CMAKE_CXX_COMPILER_ID}]" )
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-include(json)
-
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ "nvec")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../polyscope/ "polyscope")
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. "nvec")
-add_executable(${PROJECT_NAME} demo_json.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC polyscope nvec nlohmann_json::nlohmann_json)
+add_executable(${PROJECT_NAME} demo_face_rosy.cpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC polyscope nvec)
