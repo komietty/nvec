@@ -31,7 +31,7 @@ public:
 
     inline MatXd getFieldPerFace();
 
-    inline void PolarDecomposition(MatXd V, MatXd &U, MatXd &P);
+    inline void PolarDecomposition(const MatXd& V, MatXd &U, MatXd &P);
 
     // Symmetric
     MatXd S;
@@ -143,10 +143,9 @@ Eigen::RowVectorXd FrameInterpolator::theta2vector(const MatXd &TP, const double
 }
 
 void FrameInterpolator::interpolateCross(const MatXd& R) {
-    VecXi b;
-    MatXd bc;
-    b.resize(F.rows(), 1);
-    bc.resize(F.rows(), 3);
+    VecXi b(F.rows(), 1);
+    MatXd bc(F.rows(), 3);
+
     int num = 0;
     for (unsigned i = 0; i < F.rows(); ++i)
         if (thetas_c[i]) {
@@ -171,7 +170,6 @@ void FrameInterpolator::resetConstraints() {
         thetas_c[i] = false;
         S_c[i] = false;
     }
-
 }
 
 void FrameInterpolator::compute_edge_consistency() {
@@ -303,7 +301,6 @@ void FrameInterpolator::computek() {
 
 }
 
-
 void FrameInterpolator::frame2canonical(const MatXd &TP, const Eigen::RowVectorXd &v, double &theta, VecXd &S_v) {
     Eigen::RowVectorXd v0 = v.segment<3>(0);
     Eigen::RowVectorXd v1 = v.segment<3>(3);
@@ -316,8 +313,7 @@ void FrameInterpolator::frame2canonical(const MatXd &TP, const Eigen::RowVectorX
     MatXd M(2, 2);
     M << vp0, vp1;
 
-    if (M.determinant() < 0)
-        M.col(1) = -M.col(1);
+    if (M.determinant() < 0) M.col(1) = -M.col(1);
 
     assert(M.determinant() > 0);
 
@@ -457,22 +453,15 @@ void FrameInterpolator::interpolateSymmetric() {
     Eigen::SparseLU<SprsD> solver;
     solver.compute(M);
 
-    if (solver.info() != Eigen::Success) {
-        std::cerr << "LU failed - frame_interpolator.cpp" << std::endl;
-        assert(0);
-    }
+    if (solver.info() != Eigen::Success) std::cerr << "LU failed" << std::endl;
 
     MatXd x;
     x = solver.solve(b);
 
-    if (solver.info() != Eigen::Success) {
-        std::cerr << "Linear solve failed - frame_interpolator.cpp" << std::endl;
-        assert(0);
-    }
+    if (solver.info() != Eigen::Success) std::cerr << "Linear solver failed" << std::endl;
 
     S = MatXd::Zero(F.rows(), 3);
 
-    // Copy back the result
     for (unsigned i = 0; i < F.rows(); ++i)
         S.row(i) << x(i * 3 + 0), x(i * 3 + 1), x(i * 3 + 2);
 
@@ -505,10 +494,9 @@ MatXd FrameInterpolator::getFieldPerFace() {
     return R;
 }
 
-void FrameInterpolator::PolarDecomposition(MatXd V, MatXd &U, MatXd &P) {
+void FrameInterpolator::PolarDecomposition(const MatXd& V_, MatXd &U, MatXd &P) {
     // Polar Decomposition
-    Eigen::JacobiSVD<MatXd> svd(V, Eigen::ComputeFullU | Eigen::ComputeFullV);
-
+    Eigen::JacobiSVD<MatXd> svd(V_, Eigen::ComputeFullU | Eigen::ComputeFullV);
     U = svd.matrixU() * svd.matrixV().transpose();
     P = svd.matrixV() * svd.singularValues().asDiagonal() * svd.matrixV().transpose();
 }
@@ -519,13 +507,14 @@ void FrameInterpolator::PolarDecomposition(MatXd V, MatXd &U, MatXd &P) {
 /// Daniele Panozzo, Enrico Puppo, Marco Tarini, Olga Sorkine-Hornung,
 /// ACM Transactions on Graphics (SIGGRAPH, 2014)
 ///
-/// @param[in] V       #V by 3 list of mesh vertex coordinates
-/// @param[in] F       #F by 3 list of mesh faces (must be triangles)
-/// @param[in] b       #B by 1 list of constrained face indices
-/// @param[in] bc1     #B by 3 list of the constrained first representative vector of the frame field (up to permutation and sign)
-/// @param[in] bc2     #B by 3 list of the constrained second representative vector of the frame field (up to permutation and sign)
-/// @param[out] FF1      #F by 3 the first representative vector of the frame field (up to permutation and sign)
-/// @param[out] FF2      #F by 3 the second representative vector of the frame field (up to permutation and sign)
+/// @param[in] V     #V by 3 list of mesh vertex coordinates
+/// @param[in] F     #F by 3 list of mesh faces (must be triangles)
+/// @param[in] b     #B by 1 list of constrained face indices
+/// @param[in] bc1   #B by 3 list of the constrained first representative vector of the frame field (up to permutation and sign)
+/// @param[in] bc2   #B by 3 list of the constrained second representative vector of the frame field (up to permutation and sign)
+/// @param[in] rosy  #F by 3 the first extrinsic field representation out of N-rosy field (e.g. #F by 3N matrix)
+/// @param[out] FF1  #F by 3 the first representative vector of the frame field (up to permutation and sign)
+/// @param[out] FF2  #F by 3 the second representative vector of the frame field (up to permutation and sign)
 ///
 /// \note it now supports only soft constraints, should be extended to support both hard and soft constraints
 inline void frame_field(

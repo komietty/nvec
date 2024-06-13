@@ -6,6 +6,9 @@
 #include <polyscope/point_cloud.h>
 #include <polyscope/surface_mesh.h>
 
+#include <fstream>
+//#include <nvec/IO/JsonIO.h>
+
 using namespace pddg;
 
 int main(int argc, char *argv[]) {
@@ -13,7 +16,7 @@ int main(int argc, char *argv[]) {
     polyscope::options::groundPlaneMode = polyscope::GroundPlaneMode::ShadowOnly;
     MatXd V;
     MatXi F;
-    igl::readOBJ("/Users/komietty/dev/models/gargoyle.obj", V, F);
+    igl::readOBJ("/Users/komietty/dev/models/spot.obj", V, F);
     auto mesh = std::make_unique<Hmsh>(V, F);
 
     polyscope::init();
@@ -21,7 +24,7 @@ int main(int argc, char *argv[]) {
     auto surf = polyscope::registerSurfaceMesh("mesh", mesh->pos, mesh->idx);
     surf->setSurfaceColor({0, 10./ 255., 27./ 255.});
     surf->setSmoothShade(true);
-    auto rawf = std::make_unique<FaceRosyField>(*mesh, rosyN, FieldType::Smoothest);
+    auto rawf = std::make_unique<FaceRosyField>(*mesh, rosyN, FieldType::CurvatureAligned);
     rawf->computeMatching(MatchingType::Principal);
     auto seam = computeSeam(*rawf);
     auto cmbf = computeComb(*rawf, seam);

@@ -1,10 +1,10 @@
 #ifndef NVEC_FACE_SEAM_H
 #define NVEC_FACE_SEAM_H
-#include "igl/dijkstra.h"
-#include "igl/vertex_triangle_adjacency.h"
-#include "igl/adjacency_list.h"
-#include "igl/triangle_triangle_adjacency.h"
-#include "igl/cut_mesh_from_singularities.h"
+#include <igl/dijkstra.h>
+#include <igl/vertex_triangle_adjacency.h>
+#include <igl/adjacency_list.h>
+#include <igl/triangle_triangle_adjacency.h>
+#include <igl/cut_mesh_from_singularities.h>
 #include <set>
 #include "typedefs.h"
 #include "face_rosy_field.h"

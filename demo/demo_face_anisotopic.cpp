@@ -136,22 +136,16 @@ bool key_down(
 }
 */
 
-int main(int argc, char *argv[])
-{
-    using namespace Eigen;
-
+int main(int argc, char *argv[]) {
     // Load a mesh in OBJ format
     igl::readOBJ("/Users/komietty/dev/models/bumpy-cube.obj", V, F);
-
-
-    // Compute face barycenters
     igl::barycenter(V, F, B);
 
     // Compute scale for visualizing fields
     global_scale = .2 * igl::avg_edge_length(V, F);
 
     // Load constraints
-    MatrixXd temp;
+    MatXd temp;
     igl::readDMAT("/Users/komietty/dev/models/bumpy-cube.dmat",temp);
 
     b   = temp.block(0,0,temp.rows(),1).cast<int>();
@@ -205,7 +199,7 @@ int main(int argc, char *argv[])
     std::cout << "4" << std::endl;
 
     // Find a smooth crossfield that interpolates the deformed constraints
-    MatrixXd bc_x(b.size(),3);
+    MatXd bc_x(b.size(),3);
     for (unsigned i=0; i<b.size();++i)
         bc_x.row(i) = X1_deformed.row(b(i));
 }
