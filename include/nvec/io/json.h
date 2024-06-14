@@ -1,18 +1,11 @@
 #ifndef NVEC_JSONIO_H
 #define NVEC_JSONIO_H
-
 #include <nlohmann/json.hpp>
 #include <nvec/face_rosy_field.h>
-#include <iostream>
-using json = nlohmann::json;
-
 
 namespace pddg {
-
-void toJson(
-    const std::string& path,
-    const FaceRosyField& f
-    ) {
+void toJson(const std::string& path, const FaceRosyField& f) {
+    using json = nlohmann::json;
     json j;
     std::vector<double> vec(f.field.rows() * 3 * f.rosyN);
 
@@ -26,6 +19,7 @@ void toJson(
         Row3d v1 = (rc1.real() * face.basisX() + rc1.imag() * face.basisY()).normalized();
         Row3d v2 = (rc2.real() * face.basisX() + rc2.imag() * face.basisY()).normalized();
         Row3d v3 = (rc3.real() * face.basisX() + rc3.imag() * face.basisY()).normalized();
+        // rosyN == 4 case
         vec[face.id * 3 * f.rosyN + 0]  = v0.x();
         vec[face.id * 3 * f.rosyN + 1]  = v0.y();
         vec[face.id * 3 * f.rosyN + 2]  = v0.z();
@@ -39,24 +33,28 @@ void toJson(
         vec[face.id * 3 * f.rosyN + 10] = v3.y();
         vec[face.id * 3 * f.rosyN + 11] = v3.z();
     }
-    j["OnType"] = "face";
+    j["BaseType"] = "face";
     j["PolyType"] = "rosy";
-    j["N"] = f.rosyN;
-    j["value"] = vec;
+    j["NumPoly"] = f.rosyN;
+    j["NumFace"] = f.mesh.nF;
+    j["Elements"] = vec;
 
     std::ofstream o(path.c_str());
     o << j.dump() << std::endl;
     o.close();
 }
 
-void fromJson(FaceRosyField& field) {
-    std::ifstream ifs("/Users/komiettty/dev/nvec/demo/input.json");
-    if (ifs.good()) {
-        json in;
-        ifs >> in;
-
-        std::vector<double> val = in["value"];
-        std::cout << val[55] << std::endl;
+MatXd fromJson(const std::string& path) {
+    using json = nlohmann::json;
+    using MatXd_RM = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+    if (std::ifstream ifs(path); ifs.good()) {
+        json j;
+        ifs >> j;
+        const int nP = j["NumPoly"];
+        const int nF = j["NumFace"];
+        std::vector<double> elm = j["Elements"];
+        assert(elm.size() == nF * nP * 3);
+        return Eigen::Map<MatXd_RM>(elm.data(), nF, nP * 3);
     }
 }
 }
