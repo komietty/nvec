@@ -1,4 +1,4 @@
-#include "nvec/FaceBase/FrameField.h"
+#include "nvec/Face/FrameField.h"
 #include "nvec/face_rosy_field.h"
 #include <igl/readOBJ.h>
 #include <polyscope/surface_mesh.h>
