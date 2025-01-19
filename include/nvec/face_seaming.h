@@ -6,7 +6,7 @@
 #include <igl/triangle_triangle_adjacency.h>
 #include <igl/cut_mesh_from_singularities.h>
 #include <set>
-#include "typedefs.h"
+#include "hmesh/typedefs.h"
 #include "face_rosy_field.h"
 
 namespace pddg {

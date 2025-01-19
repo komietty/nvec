@@ -4,7 +4,7 @@
 #include <igl/triangle_triangle_adjacency.h>
 #include <igl/edge_topology.h>
 #include <igl/per_face_normals.h>
-#include "typedefs.h"
+#include "hmesh/typedefs.h"
 
 namespace pddg {
 class FrameInterpolator {

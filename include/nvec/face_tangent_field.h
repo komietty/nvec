@@ -5,7 +5,7 @@
 namespace pddg {
 class FaceTangentField: public BaseVectorField {
 public:
-    FaceTangentField(const Hmsh& m, const int n) : BaseVectorField(m, n) { }
+    FaceTangentField(const Hmesh& m, const int n) : BaseVectorField(m, n) { }
 
     [[nodiscard]] SprsC connectionLaplacian() const {
         SprsC S(mesh.nF, mesh.nF);

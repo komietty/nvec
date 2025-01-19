@@ -76,7 +76,7 @@ endif()
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE include)
 target_compile_definitions(${PROJECT_NAME} INTERFACE NOMINMAX _USE_MATH_DEFINES)
-target_link_libraries(${PROJECT_NAME} INTERFACE igl::core hmsh nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} INTERFACE igl::core hmesh nlohmann_json::nlohmann_json)
 
 if(GC_HAVE_SUITESPARSE)
     target_compile_definitions(${PROJECT_NAME} INTERFACE GC_HAVE_SUITESPARSE)

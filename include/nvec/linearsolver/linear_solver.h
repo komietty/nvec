@@ -1,7 +1,7 @@
 #ifndef NVEC_LINEAR_SOLVER_H
 #define NVEC_LINEAR_SOLVER_H
 #include <iostream>
-#include "typedefs.h"
+#include "hmesh/typedefs.h"
 #include <Eigen/Sparse>
 #ifdef GC_HAVE_SUITESPARSE
 #include "suitesparse_pdefinite.h"

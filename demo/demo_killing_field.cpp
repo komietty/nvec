@@ -7,7 +7,7 @@
 #include <polyscope/surface_mesh.h>
 using namespace pddg;
 
-void compute_cotan_laplacian(const Hmsh& G, SprsD & L) {
+void compute_cotan_laplacian(const Hmesh& G, SprsD & L) {
     std::vector<TripD> T;
     for (size_t iE = 0; iE < G.nE; iE++) {
         auto iH  = G.edge2half[iE];
@@ -23,7 +23,7 @@ void compute_cotan_laplacian(const Hmsh& G, SprsD & L) {
     L.setFromTriplets(T.begin(), T.end());
 }
 
-VecXd compute(const Hmsh& mesh, const VecXd& rho){
+VecXd compute(const Hmesh& mesh, const VecXd& rho){
     SprsD L;
     SprsD M;
     compute_cotan_laplacian(mesh, L);
@@ -36,7 +36,7 @@ VecXd compute(const Hmsh& mesh, const VecXd& rho){
     return llt.solve(-M * (rho - bar));
 }
 
-inline void computePoisson(const Hmsh& mesh, MatXd& field, VecXd& oneform) {
+inline void computePoisson(const Hmesh& mesh, MatXd& field, VecXd& oneform) {
     oneform.resize(mesh.nE);
     VecXd rho1(mesh.nV);
     VecXd rho2(mesh.nV);
@@ -79,7 +79,7 @@ inline void computePoisson(const Hmsh& mesh, MatXd& field, VecXd& oneform) {
 }
 
 void computeHodgeDecomposition(
-        const Hmsh& mesh,
+        const Hmesh& mesh,
         const VecXd& src,
         VecXd& E,
         VecXd& C,
@@ -105,7 +105,7 @@ void computeHodgeDecomposition(
     H = src - E - C;
 }
 
-double pointwiseCurvature(const Hmsh& m, Edge e) {
+double pointwiseCurvature(const Hmesh& m, Edge e) {
     Vert v1 = e.half().tail();
     Vert v2 = e.half().head();
     return (m.angleDefect(v1.id) / v1.circArea() +

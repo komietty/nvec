@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
     polyscope::options::groundPlaneMode = polyscope::GroundPlaneMode::ShadowOnly;
     MatXd V;
     MatXi F;
-    igl::readOBJ("/Users/komiettty/dev/models/spot.obj", V, F);
-    auto mesh = std::make_unique<Hmsh>(V, F);
+    igl::readOBJ("/Users/saki/dev/models/spot.obj", V, F);
+    auto mesh = std::make_unique<Hmesh>(V, F);
 
     polyscope::init();
     int rosyN = 4;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
     // --- encode field data to json ---
     //toJson("/Users/komiettty/dev/nvec/demo/pretty.json", *rawf);
-    MatXd ext = fromJson("/Users/komiettty/dev/nvec/demo/pretty.json");
+    MatXd ext = fromJson("/Users/saki/dev/nvec/demo/pretty.json");
     auto checkFQ = surf->addFaceVectorQuantity("check ext", ext.block(0, 0, ext.rows(), 3));
     checkFQ->setEnabled(false);
     checkFQ->setVectorLengthScale(0.004);

@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     polyscope::options::groundPlaneMode = polyscope::GroundPlaneMode::ShadowOnly;
     MatXd V;
     MatXi F;
-    igl::readOBJ("/Users/komietty/dev/models/gargoyle.obj", V, F);
-    auto hmsh = std::make_unique<Hmsh>(V, F);
+    igl::readOBJ("/Users/saki/dev/models/gargoyle.obj", V, F);
+    auto hmsh = std::make_unique<Hmesh>(V, F);
 
     polyscope::init();
     int rosyN = 4;

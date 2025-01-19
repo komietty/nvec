@@ -6,7 +6,7 @@
 namespace pddg {
 class VertRosyField : public BaseVectorField {
 public:
-    VertRosyField(const Hmsh& m, const int n, const FieldType type): BaseVectorField(m, n) {
+    VertRosyField(const Hmesh& m, const int n, const FieldType type): BaseVectorField(m, n) {
         SprsC L = connectionLaplacian();
         SprsC M = galerkinMassMatrix();
         switch (type) {
@@ -92,7 +92,7 @@ public:
 
     VecXi computeSingularNum();
 
-    static MatXd convert_to_extrinsic_field(const Hmsh& m, const VecXc& f, const int nSym) {
+    static MatXd convert_to_extrinsic_field(const Hmesh& m, const VecXc& f, const int nSym) {
         MatXd ext(m.nV, 3 * nSym);
         for (Vert v: m.verts) {
             complex c = std::pow(f[v.id], 0.25);

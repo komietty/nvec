@@ -34,8 +34,8 @@ inline std::unique_ptr<FaceRosyField> computeComb(
 
         for (Half h: face.adjHalfs()) {
             Edge e = h.edge();
-            bool b = e.f0().id == i;
-            Face fn = b ? e.f1() : e.f0();
+            bool b = e.face0().id == i;
+            Face fn = b ? e.face1() : e.face0();
             int n = (b ? 1 : -1) * field.matching[e.id];
             n = (n + m + 1000 * N) % N;
             if (!e.isBoundary() && !visit(fn.id) && !seam[e.id]) matchingQ.emplace(fn.id, n);
@@ -44,7 +44,7 @@ inline std::unique_ptr<FaceRosyField> computeComb(
 
     F->matching = VecXi::Constant(F->mesh.nE, -1);
     for (Edge e: F->mesh.edges | std::views::filter([](auto e) { return !e.isBoundary();}))
-        F->matching[e.id] = (turns[e.f0().id] - turns[e.f1().id] + field.matching[e.id] + 1000 * N) % N;
+        F->matching[e.id] = (turns[e.face0().id] - turns[e.face1().id] + field.matching[e.id] + 1000 * N) % N;
 
     return F;
 }
