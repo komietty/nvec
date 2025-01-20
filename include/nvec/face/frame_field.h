@@ -1,5 +1,5 @@
-#ifndef NVEC_FRAMEFIELD_H
-#define NVEC_FRAMEFIELD_H
+#ifndef NVEC_FACE_FRAME_FIELD_H
+#define NVEC_FACE_FRAME_FIELD_H
 #include <vector>
 #include <igl/triangle_triangle_adjacency.h>
 #include <igl/edge_topology.h>

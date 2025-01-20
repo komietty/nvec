@@ -1,14 +1,14 @@
 #ifndef NVEC_FACE_ROSY_FILED_H
 #define NVEC_FACE_ROSY_FILED_H
-#include "face_tangent_field.h"
-#include "linearsolver/linear_solver.h"
+#include "../base_field.h"
+#include "../solver/linear_solver.h"
 
 namespace pddg {
-class FaceRosyField : public FaceTangentField {
+class FaceRosyField : public BaseVectorField {
 public:
 
-    FaceRosyField(const Hmesh& mesh, const int nRosy): FaceTangentField(mesh, nRosy) {}
-    FaceRosyField(const Hmesh& mesh, const int nRosy, FieldType type): FaceTangentField(mesh, nRosy) {
+    FaceRosyField(const Hmesh& m, const int nRosy): BaseVectorField(m, nRosy) {}
+    FaceRosyField(const Hmesh& m, const int nRosy, FieldType type): BaseVectorField(m, nRosy) {
         SprsC L = connectionLaplacian();
         SprsC M = galerkinMassMatrix();
         switch (type) {
@@ -34,6 +34,59 @@ public:
         for (int i = 0; i < rosyN; i++) {
             field(f.id, i) = pow(std::polar(1., std::arg(compressed(f.id))), 1. / rosyN) * pow(r, i);
         }}
+    }
+
+    SprsC connectionLaplacian() const {
+        SprsC S(mesh.nF, mesh.nF);
+        SprsC I(mesh.nF, mesh.nF);
+        VecXc transport(mesh.nH);
+        std::vector<TripC> T;
+
+        for (Edge e: mesh.edges) {
+            Half h1 = e.half();
+            Half h2 = e.half().twin();
+            auto v1 = std::polar(1., h1.farg());
+            auto v2 = std::polar(1., h2.farg());
+            auto r = -v2 / v1;
+            transport[h1.id] = r;
+            transport[h2.id] = complex(1, 0) / r;
+        }
+
+        for (Face f: mesh.faces) {
+            for (Half h: f.adjHalfs()) {
+                if (h.twin().isBoundary()) continue;
+                auto w = 1.;
+                auto r = transport[h.twin().id];
+                Face twinF = h.twin().face();
+                T.emplace_back(f.id, f.id, w);
+                T.emplace_back(f.id, twinF.id, -w * pow(r, rosyN));
+            }}
+
+        S.setFromTriplets(T.begin(), T.end());
+        I.setIdentity();
+        return S + 1e-9 * I;
+    }
+
+    SprsC galerkinMassMatrix() const {
+        SprsC S(mesh.nF, mesh.nF);
+        std::vector<TripC> T;
+        for (Face f: mesh.faces) { T.emplace_back(f.id, f.id, f.area()); }
+        S.setFromTriplets(T.begin(), T.end());
+        return S;
+    }
+
+    VecXc principalCurvatureDir() const {
+        VecXc D(mesh.nF);
+        for (Face f: mesh.faces) {
+            complex dir{0, 0};
+            for (Half h: f.adjHalfs()) {
+                auto l = h.len();
+                auto c = std::polar(1., h.farg()) * l;
+                dir += -c * c / l * h.darg();
+            }
+            D[f.id] = dir * 0.25;
+        }
+        return D;
     }
 
     void computeSingular(const VecXd& effort) {

@@ -1,7 +1,7 @@
-#ifndef NVEC_JSONIO_H
-#define NVEC_JSONIO_H
+#ifndef NVEC_FACE_SERIALIZER_H
+#define NVEC_FACE_SERIALIZER_H
 #include <nlohmann/json.hpp>
-#include <nvec/face_rosy_field.h>
+#include "rosy_field.h"
 
 namespace pddg {
 void toJson(const std::string& path, const FaceRosyField& f) {

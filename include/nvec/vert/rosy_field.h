@@ -1,7 +1,7 @@
 #ifndef NVEC_VERT_ROSY_FIELD_H
 #define NVEC_VERT_ROSY_FIELD_H
-#include "base_field.h"
-#include "linearsolver/linear_solver.h"
+#include "../base_field.h"
+#include "../solver/linear_solver.h"
 
 namespace pddg {
 class VertRosyField : public BaseVectorField {

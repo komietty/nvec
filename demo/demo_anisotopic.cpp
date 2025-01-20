@@ -1,5 +1,5 @@
-#include "nvec/Face/FrameField.h"
-#include "nvec/face_rosy_field.h"
+#include "nvec/face/frame_field.h"
+#include "nvec/face/rosy_field.h"
 #include <igl/readOBJ.h>
 #include <polyscope/surface_mesh.h>
 #include <polyscope/curve_network.h>
@@ -8,7 +8,6 @@
 #include <igl/frame_field_deformer.h>
 #include <igl/frame_to_cross_field.h>
 #include <igl/readDMAT.h>
-#include <igl/rotate_vectors.h>
 
 using namespace pddg;
 
@@ -138,7 +137,7 @@ bool key_down(
 
 int main(int argc, char *argv[]) {
     // Load a mesh in OBJ format
-    igl::readOBJ("/Users/komietty/dev/models/bumpy-cube.obj", V, F);
+    igl::readOBJ("/Users/saki/dev/models/bumpy-cube.obj", V, F);
     igl::barycenter(V, F, B);
 
     // Compute scale for visualizing fields
@@ -146,37 +145,30 @@ int main(int argc, char *argv[]) {
 
     // Load constraints
     MatXd temp;
-    igl::readDMAT("/Users/komietty/dev/models/bumpy-cube.dmat",temp);
+    igl::readDMAT("/Users/saki/dev/models/bumpy-cube.dmat",temp);
 
     b   = temp.block(0,0,temp.rows(),1).cast<int>();
     bc1 = temp.block(0,1,temp.rows(),3);
     bc2 = temp.block(0,4,temp.rows(),3);
 
-    /// ------
-    auto mesh = std::make_unique<Hmsh>(V, F);
-
+    auto mesh = std::make_unique<Hmesh>(V, F);
     int rosyN = 4;
     auto rawf = std::make_unique<FaceRosyField>(*mesh, rosyN, FieldType::Smoothest);
     rawf->computeMatching(MatchingType::Principal);
     MatXd rawExt(mesh->nF, 3);
     for (Face f: mesh->faces) {
         complex c1 = rawf->field(f.id, 0);
-        //complex c1 = rawf->compressed(f.id);
         rawExt.row(f.id) = (c1.real() * f.basisX() + c1.imag() * f.basisY()).normalized();
     }
-    /// -----
 
     // Interpolate the frame field
     pddg::frame_field(V, F, b, bc1, bc2, rawExt, FF1, FF2);
-    std::cout << "1" << std::endl;
-
 
     // Deform the mesh to transform the frame field in a cross field
     igl::frame_field_deformer(V,F,FF1,FF2,V_deformed,FF1_deformed,FF2_deformed);
-    std::cout << "2" << std::endl;
 
     polyscope::init();
-    auto msh2 = std::make_unique<Hmsh>(V_deformed, F);
+    auto msh2 = std::make_unique<Hmesh>(V_deformed, F);
     auto surf = polyscope::registerSurfaceMesh("mesh", msh2->pos, msh2->idx);
     surf->setSurfaceColor({0, 10./ 255., 27./ 255.});
     surf->setSmoothShade(true);
@@ -192,11 +184,9 @@ int main(int argc, char *argv[]) {
 
     // Compute face barycenters deformed mesh
     igl::barycenter(V_deformed, F, B_deformed);
-    std::cout << "3" << std::endl;
 
     // Find the closest crossfield to the deformed frame field
     igl::frame_to_cross_field(V_deformed,F,FF1_deformed,FF2_deformed, X1_deformed);
-    std::cout << "4" << std::endl;
 
     // Find a smooth crossfield that interpolates the deformed constraints
     MatXd bc_x(b.size(),3);

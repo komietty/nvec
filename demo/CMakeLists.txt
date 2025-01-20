@@ -46,5 +46,5 @@ endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ "nvec")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/polyscope/ "polyscope")
-add_executable(${PROJECT_NAME} demo_vert_rosy.cpp)
+add_executable(${PROJECT_NAME} demo_face_rosy.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC polyscope nvec)

@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(UpdateCacheVariable)
 include(libigl)
 include(json)
-include(hmsh)
+include(hmesh)
 
 # Work with non-standard homebrew installations
 # (from ceres build system)

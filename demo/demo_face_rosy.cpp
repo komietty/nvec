@@ -3,9 +3,9 @@
 #include <polyscope/curve_network.h>
 #include <polyscope/point_cloud.h>
 #include <polyscope/surface_mesh.h>
-#include "nvec/face_combing.h"
-#include "nvec/face_seaming.h"
-#include "nvec/io/json.h"
+#include "nvec/face/combing.h"
+#include "nvec/face/seaming.h"
+#include "nvec/face/serializer.h"
 
 using namespace pddg;
 
@@ -58,13 +58,6 @@ int main(int argc, char *argv[]) {
     cmbFQ->setEnabled(true);
     rawFQ->setVectorLengthScale(0.004);
     cmbFQ->setVectorLengthScale(0.004);
-
-    // --- encode field data to json ---
-    //toJson("/Users/komiettty/dev/nvec/demo/pretty.json", *rawf);
-    MatXd ext = fromJson("/Users/saki/dev/nvec/demo/pretty.json");
-    auto checkFQ = surf->addFaceVectorQuantity("check ext", ext.block(0, 0, ext.rows(), 3));
-    checkFQ->setEnabled(false);
-    checkFQ->setVectorLengthScale(0.004);
 
     std::vector<glm::vec3> singPos;
     std::vector<double> singVal;

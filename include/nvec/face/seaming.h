@@ -7,7 +7,7 @@
 #include <igl/cut_mesh_from_singularities.h>
 #include <set>
 #include "hmesh/typedefs.h"
-#include "face_rosy_field.h"
+#include "rosy_field.h"
 
 namespace pddg {
 inline void cut_mesh_with_singularities(

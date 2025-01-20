@@ -1,10 +1,15 @@
-#include "nvec/vert_rosy_field.h"
-#include "nvec/linearsolver/linear_solver.h"
+#include "nvec/vert/rosy_field.h"
+#include "nvec/solver/linear_solver.h"
 #include <igl/readOBJ.h>
 #include <polyscope/polyscope.h>
 #include <polyscope/curve_network.h>
 #include <polyscope/point_cloud.h>
 #include <polyscope/surface_mesh.h>
+
+/// --------------------------------------------------- ///
+/// This demo is not working yet.
+/// --------------------------------------------------- ///
+
 using namespace pddg;
 
 void compute_cotan_laplacian(const Hmesh& G, SprsD & L) {
@@ -112,7 +117,7 @@ double pointwiseCurvature(const Hmesh& m, Edge e) {
             m.angleDefect(v2.id) / v2.circArea()) * 0.5;
 }
 
-VecXd computeKillingField(const Hmsh& mesh) {
+VecXd computeKillingField(const Hmesh& mesh) {
     SprsD h0  = mesh.h0();
     SprsD h1  = mesh.h1(); // B
     SprsD h2  = mesh.h2();
@@ -162,7 +167,7 @@ VecXd computeKillingField(const Hmsh& mesh) {
     return solveSmallestEig(R, h1, 20);
 }
 
-MatXd computeWhitenyInterporaiton(const Hmsh& g, const VecXd& oneForm) {
+MatXd computeWhitenyInterporaiton(const Hmesh& g, const VecXd& oneForm) {
     MatXd F(g.nF, 3);
     for (Face f: g.faces) {
         Half cH = f.half();
@@ -191,7 +196,7 @@ int main(int argc, char *argv[]) {
     MatXd V;
     MatXi F;
     igl::readOBJ("/Users/komietty/dev/models/spot.obj", V, F);
-    auto mesh = std::make_unique<Hmsh>(V, F);
+    auto mesh = std::make_unique<Hmesh>(V, F);
 
     polyscope::init();
     auto surf = polyscope::registerSurfaceMesh("mesh", mesh->pos, mesh->idx);

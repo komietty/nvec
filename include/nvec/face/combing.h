@@ -1,7 +1,7 @@
 #ifndef NVEC_FACE_COMBING_H
 #define NVEC_FACE_COMBING_H
 #include <ranges>
-#include "face_rosy_field.h"
+#include "rosy_field.h"
 
 namespace pddg {
 inline std::unique_ptr<FaceRosyField> computeComb(
