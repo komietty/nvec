@@ -1,10 +1,11 @@
-#include "nvec/face_combing.h"
-#include "nvec/face_seaming.h"
 #include <igl/readOBJ.h>
 #include <polyscope/polyscope.h>
 #include <polyscope/curve_network.h>
 #include <polyscope/point_cloud.h>
 #include <polyscope/surface_mesh.h>
+#include "nvec/face/combing.h"
+#include "nvec/face/seaming.h"
+#include "nvec/face/serializer.h"
 
 using namespace pddg;
 
@@ -13,32 +14,46 @@ int main(int argc, char *argv[]) {
     polyscope::options::groundPlaneMode = polyscope::GroundPlaneMode::ShadowOnly;
     MatXd V;
     MatXi F;
-    igl::readOBJ("/Users/komietty/dev/models/gargoyle.obj", V, F);
-    auto mesh = std::make_unique<Hmsh>(V, F);
+    igl::readOBJ("/Users/saki/dev/models/spot.obj", V, F);
+    auto mesh = std::make_unique<Hmesh>(V, F);
 
     polyscope::init();
     int rosyN = 4;
     auto surf = polyscope::registerSurfaceMesh("mesh", mesh->pos, mesh->idx);
     surf->setSurfaceColor({0, 10./ 255., 27./ 255.});
     surf->setSmoothShade(true);
-    auto rawf = std::make_unique<FaceRosyField>(*mesh, rosyN, FieldType::Smoothest);
+
+    auto rawf = std::make_unique<FaceRosyField>(*mesh, rosyN, FieldType::CurvatureAligned);
     rawf->computeMatching(MatchingType::Principal);
     auto seam = computeSeam(*rawf);
     auto cmbf = computeComb(*rawf, seam);
     MatXd rawInt(mesh->nF, 2);
     MatXd cmbInt(mesh->nF, 2);
-    MatXd rawExt(mesh->nF, 3);
-    MatXd cmbExt(mesh->nF, 3);
+    MatXd rawExt(mesh->nF, 3 * rosyN);
+    MatXd cmbExt(mesh->nF, 3 * rosyN);
     for (Face f: mesh->faces) {
-        complex c1 = rawf->field(f.id, 0);
-        complex c2 = cmbf->field(f.id, 0);
-        rawInt.row(f.id) = Row2d(c1.real(), c1.imag()).normalized();
-        cmbInt.row(f.id) = Row2d(c2.real(), c2.imag()).normalized();
-        rawExt.row(f.id) = (c1.real() * f.basisX() + c1.imag() * f.basisY()).normalized();
-        cmbExt.row(f.id) = (c2.real() * f.basisX() + c2.imag() * f.basisY()).normalized();
+        complex rc0 = rawf->field(f.id, 0);
+        complex rc1 = rawf->field(f.id, 1);
+        complex rc2 = rawf->field(f.id, 2);
+        complex rc3 = rawf->field(f.id, 3);
+        complex cc0 = cmbf->field(f.id, 0);
+        complex cc1 = cmbf->field(f.id, 1);
+        complex cc2 = cmbf->field(f.id, 2);
+        complex cc3 = cmbf->field(f.id, 3);
+        rawInt.row(f.id) = Row2d(rc0.real(), rc0.imag()).normalized();
+        cmbInt.row(f.id) = Row2d(cc0.real(), cc0.imag()).normalized();
+
+        rawExt.block(f.id, 0, 1, 3) = (rc0.real() * f.basisX() + rc0.imag() * f.basisY()).normalized();
+        rawExt.block(f.id, 3, 1, 3) = (rc1.real() * f.basisX() + rc1.imag() * f.basisY()).normalized();
+        rawExt.block(f.id, 6, 1, 3) = (rc2.real() * f.basisX() + rc2.imag() * f.basisY()).normalized();
+        rawExt.block(f.id, 9, 1, 3) = (rc3.real() * f.basisX() + rc3.imag() * f.basisY()).normalized();
+        cmbExt.block(f.id, 0, 1, 3) = (cc0.real() * f.basisX() + cc0.imag() * f.basisY()).normalized();
+        cmbExt.block(f.id, 3, 1, 3) = (cc1.real() * f.basisX() + cc1.imag() * f.basisY()).normalized();
+        cmbExt.block(f.id, 6, 1, 3) = (cc2.real() * f.basisX() + cc2.imag() * f.basisY()).normalized();
+        cmbExt.block(f.id, 9, 1, 3) = (cc3.real() * f.basisX() + cc3.imag() * f.basisY()).normalized();
     }
-    auto rawFQ = surf->addFaceVectorQuantity("raw ext", rawExt);
-    auto cmbFQ = surf->addFaceVectorQuantity("cmb ext", cmbExt);
+    auto rawFQ = surf->addFaceVectorQuantity("raw ext", rawExt.block(0, 0, rawExt.rows(), 3));
+    auto cmbFQ = surf->addFaceVectorQuantity("cmb ext", cmbExt.block(0, 0, cmbExt.rows(), 3));
     rawFQ->setEnabled(false);
     cmbFQ->setEnabled(true);
     rawFQ->setVectorLengthScale(0.004);

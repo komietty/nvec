@@ -1,6 +1,7 @@
 #ifndef NVEC_LINEAR_SOLVER_H
 #define NVEC_LINEAR_SOLVER_H
-#include "typedefs.h"
+#include <iostream>
+#include "hmesh/typedefs.h"
 #include <Eigen/Sparse>
 #ifdef GC_HAVE_SUITESPARSE
 #include "suitesparse_pdefinite.h"
@@ -49,18 +50,21 @@ inline VecXc solveSmallestEig(SprsC& L, SprsC& M, int nIter = 50) {
 #endif
 }
 
-//inline VecXd solveSmallestEig(SprsD& L, SprsD& M, int nIter = 50) {
-//    Eigen::SparseLU<SprsD> solver;
-//    solver.compute(L);
-//    VecXd u = VecXd::Random(L.rows());
-//    VecXd x = u;
-//    for (size_t i = 0; i < nIter; i++) {
-//        x = solver.solve(M * u);
-//        double s = std::sqrt(std::abs(x.dot(M * x)));
-//        x /= s;
-//        u = x;
-//    }
-//    return x;
-//}
+inline VecXd solveSmallestEig(const SprsD& L, const SprsD& M, int nIter = 50) {
+    Eigen::SimplicialLDLT<SprsD> solver;
+    solver.compute(L);
+    srand((unsigned int) 13);
+    VecXd u = VecXd::Random(L.rows());
+    VecXd x = u;
+    for (size_t i = 0; i < nIter; i++) {
+        std::cout << "iter " << i << std::endl;
+        x = solver.solve(M * u);
+        //double s = std::sqrt(std::abs(x.dot(M * x)));
+        //x /= s;
+        //u = x;
+        u = x / std::sqrt(x.dot(M * x));
+    }
+    return x;
+}
 }
 #endif

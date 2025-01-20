@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(UpdateCacheVariable)
 include(libigl)
-include(hmsh)
+include(json)
+include(hmesh)
 
 # Work with non-standard homebrew installations
 # (from ceres build system)
@@ -73,12 +74,12 @@ endif()
 # ===  done finding Suitesparse === #
 
 add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE include)
 target_compile_definitions(${PROJECT_NAME} INTERFACE NOMINMAX _USE_MATH_DEFINES)
-target_link_libraries(${PROJECT_NAME} INTERFACE igl::core hmsh)
+target_link_libraries(${PROJECT_NAME} INTERFACE igl::core hmesh nlohmann_json::nlohmann_json)
 
 if(GC_HAVE_SUITESPARSE)
     target_compile_definitions(${PROJECT_NAME} INTERFACE GC_HAVE_SUITESPARSE)
     target_include_directories(${PROJECT_NAME} INTERFACE ${SUITESPARSE_INCLUDE_DIRS})
-    target_include_directories(${PROJECT_NAME} INTERFACE include)
     target_link_libraries(${PROJECT_NAME} INTERFACE ${SUITESPARSE_LIBRARIES})
 endif()

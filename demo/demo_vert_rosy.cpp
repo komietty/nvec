@@ -1,4 +1,4 @@
-#include "nvec/vert_rosy_field.h"
+#include "nvec/vert/rosy_field.h"
 #include <igl/readOBJ.h>
 #include <polyscope/polyscope.h>
 #include <polyscope/curve_network.h>
@@ -11,8 +11,9 @@ int main(int argc, char *argv[]) {
     polyscope::options::groundPlaneMode = polyscope::GroundPlaneMode::ShadowOnly;
     MatXd V;
     MatXi F;
-    igl::readOBJ("/Users/komietty/dev/models/gargoyle.obj", V, F);
-    auto hmsh = std::make_unique<Hmsh>(V, F);
+    igl::readOBJ("/Users/saki/dev/models/gargoyle.obj", V, F);
+
+    auto hmsh = std::make_unique<Hmesh>(V, F);
 
     polyscope::init();
     int rosyN = 4;
@@ -26,23 +27,6 @@ int main(int argc, char *argv[]) {
     auto tq = surf->addVertexTangentVectorQuantity("rosyf", rosy, hmsh->vertBasisX, hmsh->vertBasisY, rosyN);
     tq->setEnabled(true);
     tq->setVectorLengthScale(0.004);
-
-    /*
-    std::vector<glm::vec3> singPos;
-    std::vector<double> singVal;
-    for (Face f: hmsh->faces) {
-        if (int s = vf->singular[f.id]; s != 0) { // vert field singular is not implemented yet
-            Row3d p = f.center();
-            singPos.emplace_back(p.x(), p.y(), p.z());
-            singVal.emplace_back(s);
-        }
-    }
-    auto pc = polyscope::registerPointCloud("face field singulars", singPos);
-    pc->addScalarQuantity("face field singular nums", singVal);
-    pc->setEnabled(true);
-    pc->setPointRadius(0.005);
-    pc->resetTransform();
-    */
 
     polyscope::show();
 }
